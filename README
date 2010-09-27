@@ -1,0 +1,1 @@
+Here's my attempt.  It goes pixel by pixel and if it's different than the one before it creates a new segment.  Then if two pixels with different segment numbers run into each other they are joined to the same set.  The joined result outputs the value (I'm hoping).
