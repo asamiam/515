@@ -9,6 +9,7 @@
 #include <Magick++.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 using namespace Magick;
@@ -36,7 +37,7 @@ int main(int argc, char * argv[])
 		Image image(imageName);
 		cout <<	"Accepted the image, segmenting" << endl;
 		image.segment(1.0, 1.5);
-		image.write("1out.png");
+		
 		
 		Geometry dim = image.size();
 		size_t width = dim.width();
@@ -62,7 +63,6 @@ int main(int argc, char * argv[])
 		for (size_t i=0; i<width*height; i++){
 			sets[i]=-1;
 		}
-		cout << "I made it here" << endl;
 		for (size_t j = 0; j<height; j++) {
 			for (size_t i = 0; i<width; i++) {
 				
@@ -175,7 +175,7 @@ int main(int argc, char * argv[])
 			//cout << "counting! " << i << endl;
 			if (sets[i]!=0) {
 				joins+=1;
-				//cout << "added join: " << joins << endl;
+				cout << "Set: " << i << " with val: " << sets[i] << " added to join." << endl;
 			}
 			int cur = i;
 			bool deleting = true;
@@ -191,6 +191,14 @@ int main(int argc, char * argv[])
 
 			}
 		}
+		string output, segs;
+		output = "OUTPUT: ";
+		stringstream tmp;
+		tmp << segments;
+		segs = tmp.str();
+		output = output + segs;
+		image.draw(DrawableText(20,20,output));
+		image.write("1out.png");
 		
 		cout << "Total segments: " << segments << endl;
 		cout << "Segments after joins: " << joins <<endl;
