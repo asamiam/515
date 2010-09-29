@@ -170,14 +170,21 @@ int main(int argc, char * argv[])
 		//Done checking all pixels
 		cout << "Done, now count joins!" << endl;
 		
-		int joins = -1;
-		for (int i=0; i<segments; i++) {
+		/*
+		for (int i=1; i<=segments; i++) {
+			cout << i << " has: " << sets[i] << endl;
+		}
+		*/
+		int joins = 0;
+		sets[0] = 0;
+		for (int i=1; i<=segments; i++) {
 			//cout << "counting! " << i << endl;
 			if (sets[i]!=0) {
 				joins+=1;
-				cout << "Set: " << i << " with val: " << sets[i] << " added to join." << endl;
+				//cout << "Set: " << i << " with val: " << sets[i] << " added to join." << endl;
 			}
 			int cur = i;
+			bool tracing = false;
 			bool deleting = true;
 			while (deleting) {
 				//cout << "=======cur: " << cur << endl;
@@ -185,6 +192,15 @@ int main(int argc, char * argv[])
 					int tmp = cur;
 					cur = sets[cur];
 					sets[tmp] = 0;
+					//cout << tmp << " was set to 0, next check is " << cur << endl;
+					tracing = true;
+				} else if (sets[cur] < 1 && tracing) {
+					// We're tracing a chain and its end has already been erased which means
+					// we have an overlapping chain
+					//cout << cur << " is 0, deleting its join " << joins << endl;
+					joins-= 1;
+					//cout << " to " << joins << endl;
+					deleting = false;
 				} else {
 					deleting = false;
 				}
