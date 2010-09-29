@@ -194,7 +194,7 @@ int main(int argc, char * argv[])
 		string output, segs;
 		output = "OUTPUT: ";
 		stringstream tmp;
-		tmp << segments;
+		tmp << joins;
 		segs = tmp.str();
 		output = output + segs;
 		image.draw(DrawableText(20,20,output));
