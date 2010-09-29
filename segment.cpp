@@ -36,8 +36,8 @@ int main(int argc, char * argv[])
 	{
 		Image image(imageName);
 		cout <<	"Accepted the image, segmenting" << endl;
+		image.quantizeColorSpace(YUVColorspace);
 		image.segment(1.0, 1.5);
-		
 		
 		Geometry dim = image.size();
 		size_t width = dim.width();
