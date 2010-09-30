@@ -15,12 +15,12 @@ using namespace Magick;
 
 int main(int argc, char * argv[])
 {
-	cout << "CSE 515 Project 1 - Part 1" << endl;
+	cout << "CSE 515 Project 1 - SIFT Prep" << endl;
 
 	if(argc != 2)
 	{
 		cout << "Error parsing command line arguments." << endl;
-		cout << "Usage: \nsegement <image-name>";
+		cout << "Usage: \nmagic <image-name>";
 		return 1;
 	}
 

@@ -207,12 +207,11 @@ int main(int argc, char * argv[])
 
 			}
 		}
-		string output, segs;
-		output = "OUTPUT: ";
+		
+		// Output the number of segments at the top left of the image
 		stringstream tmp;
 		tmp << joins;
-		segs = tmp.str();
-		output = output + segs;
+		string output = tmp.str();
 		image.draw(DrawableText(20,20,output));
 		image.write("1out.png");
 		
