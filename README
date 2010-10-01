@@ -1,1 +1,34 @@
-Here's my attempt.  It goes pixel by pixel and if it's different than the one before it creates a new segment.  Then if two pixels with different segment numbers run into each other they are joined to the same set.  The joined result outputs the value (I'm hoping).
+Included is my code in the Code folder.  Segment.cpp is the code used to segment
+the files, while magic.cpp was a simple script that output files in the pgm, grayscale
+format (equivalent to typing "convert <image> <newimage>" command line).
+
+In order to compile segment.cpp and magic.cpp, type magick++-config.  That will output
+an example of what should make magick++ files compile on your computer.  Substituting
+segment and segment.cpp will allow for the usage in the project filed, namely being able
+to type the command "segment" followed by the image name.
+
+/*
+The algorithm
+*/
+The algorithm itself is simple.  It inputs the image, moves it to the YUV colorspace, and
+then gets its width and height.  Using those values it checks each pixel to see if it has
+a segment assigned to it.  If it doesn't it increments the segments and assigns it to the
+pixel.  If it does it just continues.  Next the pixel is compared to four of its 
+neighbors (this was an optimization since comparing four pixels assures that every 
+possibility is covered so testing all neighbors is doing extra work).
+
+When comparing if the neighbors have the same color value and have not been assigned yet,
+they are assigned the pixels segment.  If they are the same color and have been assigned,
+that value is added to a chain stored in an array which means the two different segment
+numbers are actually members of the same segment (so if segment 2 is the same as 4, it
+would look like this- segment[2]=4).  If the numbers are different the pixel is left
+alone.
+
+Afterwards when counting segments the variable joins keeps track of how many distinct
+segments there are.  The counter goes through all of the segments found one at a time.
+For each if they are part of a chain, the chain is followed and marked so that when
+that segment is checked we know not to add it as a separate segment (join in this case).
+Also chains pointing at the same end value which originally increment joins then 
+decrement the value since they are joined by the last number in the chain.
+
+Finally the number of actual segments (joins) is output on the image and it is written.
