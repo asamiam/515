@@ -1,9 +1,10 @@
 /*
- *  magic.cpp
+ *  segment.cpp
  *  
  *
  *  Created by Ace Sorensen on 9/16/10.
- *  Copyright 2010 __MyCompanyName__. All rights reserved.
+ *		Code used to segment images and then count the
+ *		number of segments.
  *
  */
 #include <Magick++.h>
@@ -36,15 +37,19 @@ int main(int argc, char * argv[])
 	{
 		Image image(imageName);
 		cout <<	"Accepted the image, segmenting" << endl;
+		//Move the image to YUV colorpsace
 		image.quantizeColorSpace(YUVColorspace);
+		//Segment the image using the default values
 		image.segment(1.0, 1.5);
 		
+		//Get the image dimensions
 		Geometry dim = image.size();
 		size_t width = dim.width();
 		size_t height = dim.height();
 		cout << "Image width: " << width << endl;
 		cout << "Image height: " << height << endl;
 		
+		//Prep vars
 		ColorYUV color;
 		double y,u,v;
 		double y1,u1,v1;
@@ -54,15 +59,22 @@ int main(int argc, char * argv[])
 		int max_sets = width*height;
 		int sets[max_sets];
 		
-		//Initialize all pixels to -1
+		//Initialize all pixels to -1 saying they haven't
+		//	been assigned a segment yet.
 		for (size_t i=0; i<width; i++) {
 			for (size_t j=0; j<height; j++) {
 				s[i][j]=-1;
 			}
 		}
+		//Initialize the array to keep track of which
+		//	segments are actually part of other segments.
+		//	These sets of segments are used to identify
+		//	the real total number of segments at the end
 		for (size_t i=0; i<width*height; i++){
 			sets[i]=-1;
 		}
+		
+		//Go through pixel by pixel
 		for (size_t j = 0; j<height; j++) {
 			for (size_t i = 0; i<width; i++) {
 				
@@ -77,19 +89,21 @@ int main(int argc, char * argv[])
 				if (s[i][j]==-1) {
 					s[i][j]=++segments;
 				}
-				//cout << "nsij: " << s[i][j] << " segments: " << segments <<endl;
 				
-				//cout << "My segment: " << s[i][j] << " number of segments: " << segments << " ";
+				//cout << "My segment: " << s[i][j] << " number of segments: " << segments << " " << endl;
+				//Initialize the values of which pixels to check.  Make sure
+				//	If we're close to an edge not to look off the edge.
 				w_max = i!=(width-1) ? i+1 : i;
 				w_min = i!=0 ? i-1 : i;
 				h_max = j!=(height-1) ? j+1 : j;
 				
+				//Look at four neighbors
 				for (size_t w = w_min; w<=w_max; w++) {
 					for (size_t h = j; h<=h_max; h++) {
 						if ((i==w&&j==h) || (w_min==w && h==j)) {
 							//It's ME
 						} else {
-							//I've found a neighbor
+							//I've found a neighbor, what color are they?
 							color = image.pixelColor(w,h);
 							y1 = color.y();
 							u1 = color.u();
@@ -106,9 +120,8 @@ int main(int argc, char * argv[])
 									s[w][h] = s[i][j];
 								}else if (s[w][h] != s[i][j]) {
 									//Has been assigned, but we're the same
-									//so remember these two are the same
-									//Status remembers each segment and whether
-									//it's been joined or not.
+									//	so remember these two are the same.
+									//	Sets will keep track of that.
 									int o_min, seg_min, seg_max;
 									bool z, z1;
 									if (s[i][j]>s[w][h]) {
@@ -124,13 +137,19 @@ int main(int argc, char * argv[])
 									while (z) {
 										
 										if (seg_min == seg_max || sets[seg_min] == seg_max) {
+											//Someone beat us to it, this value doesn't need
+											//to be set.
 											//cout << "Break because min = max" << endl;
 											z=false;
 										};
 										if (sets[seg_min]>0 && z) {
-											// If the value is already set test it vs new max
+											// If the value is already set then we need to
+											// be smart because only one value fits in each
+											// array slot.  We test it vs new max to decide
+											// what to do.
 											if (sets[seg_min]<seg_max) {
 												//If the new max is bigger, follow the chain
+												//to insert it later
 												//cout << "New max bigger, following chain: "<< seg_min << ":"<< sets[seg_min] << ":" << seg_max << endl;
 												seg_min = sets[seg_min];
 											} else {
@@ -147,6 +166,8 @@ int main(int argc, char * argv[])
 												z1 = false;
 											}
 										} else if(z) {
+											// We've gotten to a point where the value in sets hasn't
+											// been set, so we can set it.
 											//cout << "=================>>>>>>>>>>>>>>>>Setting empty value: "<< seg_min << ":" << sets[seg_min] << ":" << seg_max << endl;
 											sets[seg_min] = seg_max;
 											z=false;
@@ -175,11 +196,18 @@ int main(int argc, char * argv[])
 			cout << i << " has: " << sets[i] << endl;
 		}
 		*/
+		//Joins actually keeps track of the number of
+		// distinct segments.
 		int joins = 0;
 		sets[0] = 0;
 		for (int i=1; i<=segments; i++) {
+			//Check each segment
 			//cout << "counting! " << i << endl;
 			if (sets[i]!=0) {
+				//0 is the value used to signify
+				//the number has been deleted.
+				//If it's not 0 then it must be
+				//a distinct segment.
 				joins+=1;
 				//cout << "Set: " << i << " with val: " << sets[i] << " added to join." << endl;
 			}
@@ -189,10 +217,14 @@ int main(int argc, char * argv[])
 			while (deleting) {
 				//cout << "=======cur: " << cur << endl;
 				if (sets[cur]>0) {
+					//If the current is pointing at another,
+					//	we need to follow the chain and delete
+					//	the other
 					int tmp = cur;
 					cur = sets[cur];
 					sets[tmp] = 0;
 					//cout << tmp << " was set to 0, next check is " << cur << endl;
+					//Tracing means we've already deleted one
 					tracing = true;
 				} else if (sets[cur] < 1 && tracing) {
 					// We're tracing a chain and its end has already been erased which means
@@ -202,6 +234,7 @@ int main(int argc, char * argv[])
 					//cout << " to " << joins << endl;
 					deleting = false;
 				} else {
+					//Done deleting
 					deleting = false;
 				}
 

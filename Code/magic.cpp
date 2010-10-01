@@ -3,7 +3,11 @@
  *  
  *
  *  Created by Ace Sorensen on 9/16/10.
- *  Copyright 2010 __MyCompanyName__. All rights reserved.
+ *		
+ *		This is a simple program that is the equivalent of typing
+ *		convert <image> <imageNewName> in the command line in
+ *		pgm cases only.  Mostly just for fun while getting to 
+ *		know imageMagick since this was unnessesary.
  *
  */
 #include <Magick++.h>
@@ -34,7 +38,9 @@ int main(int argc, char * argv[])
 	try
 	{
 		Image image(imageName);
+		// Move it to the gray colorspace
 		image.quantizeColorSpace(GRAYColorspace);
+		// Write it out
 		image.write("test.pgm");
 		
 	}
