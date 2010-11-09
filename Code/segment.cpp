@@ -41,10 +41,11 @@ int main(int argc, char * argv[])
 		image.quantizeColorSpace(YUVColorspace);
 		//Segment the image using the default values
 		
-		cout << "Please enter 2 characters: " << endl;
+		cout << "Please enter cluster threshold value (default 1.0): " << endl;
 		double clusterThreshold;
 		double smoothingThreshold;
 		cin >> clusterThreshold;
+		cout << "Please enter smoothing threshold value (default 1.5): " << endl;
 		cin >> smoothingThreshold;
 		
 		image.segment(clusterThreshold, smoothingThreshold);
