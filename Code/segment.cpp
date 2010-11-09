@@ -40,7 +40,14 @@ int main(int argc, char * argv[])
 		//Move the image to YUV colorpsace
 		image.quantizeColorSpace(YUVColorspace);
 		//Segment the image using the default values
-		image.segment(1.0, 1.5);
+		
+		cout << "Please enter 2 characters: " << endl;
+		double clusterThreshold;
+		double smoothingThreshold;
+		cin >> clusterThreshold;
+		cin >> smoothingThreshold;
+		
+		image.segment(clusterThreshold, smoothingThreshold);
 		
 		//Get the image dimensions
 		Geometry dim = image.size();
